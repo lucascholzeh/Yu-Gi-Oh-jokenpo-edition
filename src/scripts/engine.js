@@ -13,6 +13,12 @@ const state = {
         player: document.getElementById('player-field-card'),
         computer: document.getElementById('computer-field-card'),
     },
+    playerSides: {
+        player1: "player-cards",
+        player1Box: document.querySelector("#player-cards"),
+        computer: "computer-cards",
+        computerBox: document.querySelector("#computer-cards"),
+    },
     actions: {
         button: document.getElementById('next-duel'),
     },
@@ -80,7 +86,7 @@ async function createCardImage(IdCard, fieldSide){
 
 async function setCardsField(cardId){
 
-    // await removeAllCardsImages();
+    await removeAllCardsImages();
 
     let computerCardId = await getRandomCardId();
 
@@ -96,6 +102,40 @@ async function setCardsField(cardId){
     await drawButton(duelResults);
 }
 
+async function drawButton(text){
+    state.actions.button.innerText = text;
+    state.actions.button.style.display = "block";
+}
+
+async function updateScore(){
+    state.score.scoreBox.innerText = `Win: ${state.score.playerScore} | Lose: ${state.score.computerScore}`
+}
+
+async function checkDuelResults(playerCardId, computerCardId){
+    let duelResults = "Empate";
+    let playerCard = cardData[playerCardId];
+
+    if(playerCard.WinOf.includes(computerCardId)){
+        duelResults = "Ganhou";
+        state.score.playerScore++;
+    }
+
+    if(playerCard.LoseOf.includes(computerCardId)){
+        duelResults = "Perdeu";
+        state.score.computerScore++;
+    }
+
+    return duelResults;
+}
+
+async function removeAllCardsImages(){
+    let { computerBox, player1Box} = state.playerSides;
+    let imgElements = computerBox.querySelectorAll("img");
+    imgElements.forEach((img) => img.remove());
+
+    imgElements = player1Box.querySelectorAll("img");
+    imgElements.forEach((img) => img.remove());
+}
 
 
 async function drawSelectCard(index){
@@ -111,6 +151,17 @@ async function drawCards(cardNumbers, fieldSide){
 
         document.getElementById(fieldSide).appendChild(cardImage);
     }
+}
+
+async function resetDuel(){
+    state.cardSprites.avatar.src = "";
+    state.actions.button.style.display = "none";
+
+    state.fieldCards.player.style.display = "none";
+    state.fieldCards.computer.style.display = "none";
+
+    init();
+    
 }
 
 function init (){
